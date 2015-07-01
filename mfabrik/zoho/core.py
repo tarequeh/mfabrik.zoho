@@ -198,7 +198,7 @@ class Connection(object):
         parameters["authtoken"] = self.authtoken
         parameters["scope"] = self.scope
 
-        stringify(parameters)
+        parameters = stringify(parameters)
 
         if logger.getEffectiveLevel() == logging.DEBUG:
             # Output Zoho API call payload
@@ -206,6 +206,7 @@ class Connection(object):
             for key, value in parameters.items():
                 logger.debug(key + ": " + value)
         self.parameters = parameters
+
         self.parameters_encoded = urllib.urlencode(parameters)
         request = urllib2.Request(url, urllib.urlencode(parameters))
         response = urllib2.urlopen(request).read()
@@ -219,11 +220,11 @@ class Connection(object):
 
     def check_successful_xml(self, response):
         """ Make sure that we get "succefully" response.
-        
+
         Throw exception of the response looks like something not liked.
-        
+
         @raise: ZohoException if any error
-        
+
         @return: Always True
         """
 
@@ -231,7 +232,7 @@ class Connection(object):
         # <response uri="/crm/private/xml/Leads/insertRecords"><result><message>Record(s) added successfully</message><recorddetail><FL val="Id">177376000000142007</FL><FL val="Created Time">2010-06-27 21:37:20</FL><FL val="Modified Time">2010-06-27 21:37:20</FL><FL val="Created By">Ohtamaa</FL><FL val="Modified By">Ohtamaa</FL></recorddetail></result></response>
 
         root = fromstring(response)
-            
+
         # Check error response
         # <response uri="/crm/private/xml/Leads/insertRecords"><error><code>4401</code><message>Unable to populate data, please check if mandatory value is entered correctly.</message></error></response>
         for error in root.findall("error"):
@@ -240,7 +241,7 @@ class Connection(object):
             print "Got error"
             for message in error.findall("message"):
                 raise ZohoException(message.text)
-        
+
         return True
 
     def get_converted_records(self, response):
@@ -260,7 +261,7 @@ class Connection(object):
         @return: List of record ids which were created by insert recoreds
         """
         root = fromstring(response)
-        
+
         records = []
         for result in root.findall("result"):
             for record in result.findall("recorddetail"):
@@ -272,16 +273,11 @@ class Connection(object):
 
 def stringify(params):
     """ Make sure all params are urllib compatible strings """
+    new_dict = {}
     for key, value in params.items():
+        new_dict[key] = str(value)
 
-        if type(value) == str:
-            params[key] == value.decode("utf-8")
-        elif type(value) == unicode:
-            pass
-        else:
-            # call __unicode__ of object
-            params[key] = unicode(value)
-
+    return new_dict
 
 def decode_json(json_data):
     """ Helper function to handle Zoho specific JSON decode.
