@@ -222,7 +222,7 @@ class CRM(Connection):
 
         self.check_successful_xml(response)
 
-    def get_record_by_id(self, id):
+    def get_record_by_id(self, record_id, module='Leads'):
         """
 
         https://www.zoho.com/crm/help/api/getrecordbyid.html
@@ -235,18 +235,49 @@ class CRM(Connection):
         self.ensure_opened()
 
         post_params = {
-            "id": id,
+            "id": record_id,
             "newFormat" : 2
         }
+        url = "https://crm.zoho.com/crm/private/json/%s/getRecordById" % module
 
-        response = self.do_call("https://crm.zoho.com/crm/private/json/Leads/getRecordById", post_params)
+        response = self.do_call(url, post_params)
 
         # raw data looks like {'response': {'result': {'Leads': {'row': [{'FL': [{'content': '177376000000142085', 'val': 'LEADID'}, ...
         data = decode_json(response)
 
-        parsed = self._parse_json_response(data)
+        parsed = self._parse_json_response(data, module)
 
         return parsed[0] if len(parsed) else None
+
+    def new_search_records(self, criteria, module='Leads', selectColumns='Leads(First Name,Last Name,Company)'):
+        """
+
+        https://www.zoho.com/crm/help/api/searchrecords.html
+
+        @param criteria: String. Search condition (see ZOHO API doc for details).
+
+        @param selectColumns: String. What columns to query. For example query format,
+            see API doc. Default is leads(First Name,Last Name,Company).
+
+        @return: Python list of dictionarizied matches. Each dictionary contains lead key-value pairs. LEADID column is always included.
+
+        """
+        self.ensure_opened()
+
+
+        post_params = {
+            "criteria": criteria,
+            "selectColumns" : selectColumns,
+            "newFormat" : 2
+        }
+        search_url = 'https://crm.zoho.com/crm/private/json/%s/searchRecords' % module
+
+        response = self.do_call(search_url, post_params)
+
+        # Raw data looks like {'response': {'result': {'Leads': {'row': [{'FL': [{'content': '177376000000142085', 'val': 'LEADID'}, ...
+        data = decode_json(response)
+
+        return self._parse_json_response(data, module)
 
     def search_records(self, searchCondition, module='Leads', selectColumns='Leads(First Name,Last Name,Company)'):
         """
