@@ -196,7 +196,7 @@ class CRM(Connection):
 
         self.check_successful_xml(response)
 
-    def update_record(self, module, id, lead):
+    def update_record(self, module, id, data):
         """ Update record in Zoho CRM database.
 
         https://www.zoho.com/crm/help/api/updaterecords.html
@@ -210,7 +210,7 @@ class CRM(Connection):
         """
         self.ensure_opened()
 
-        xmldata = self._prepare_xml_request(module, [lead])
+        xmldata = self._prepare_xml_request(module, [data])
 
         post = {
             'newFormat':    1,
