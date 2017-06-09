@@ -131,12 +131,14 @@ class CRM(Connection):
         responses = []
         for lead in leads:
             new_dict = {
-                "createPotential": False,
-                "assignTo": self.get_service_name(),
-                "notifyLeadOwner": False,
-                "notifyNewEntityOwner": False}
-            new_dict.update(extra_data)
-            xmldata = self._prepare_xml_request("Potentials", [new_dict], element_name='option')
+                u"createPotential": False,
+                u"assignTo": self.get_service_name(),
+                u"notifyLeadOwner": False,
+                u"notifyNewEntityOwner": False}
+            xml_data_rows = [new_dict]
+            if extra_data:
+                xml_data_rows.append(extra_data)
+            xmldata = self._prepare_xml_request("Potentials", xml_data_rows, element_name='option')
 
             post = {
                 'newFormat': 1,
