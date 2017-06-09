@@ -116,7 +116,7 @@ class CRM(Connection):
 
         return self.get_inserted_records(response)
 
-    def convert_lead(self, leads, extra_post_parameters={}):
+    def convert_lead(self, leads, extra_data={}, extra_post_parameters={}):
         """ Converts leads for the Zoho CRM database.
 
         @param leads: List of dictionaries (easiest is to pass the record dict as found in get_records).
@@ -133,12 +133,14 @@ class CRM(Connection):
             new_dict = {
                 "createPotential": False,
                 "assignTo": self.get_service_name(),
-                "notifyLeadOwner": True,
-                "notifyNewEntityOwner": True}
+                "notifyLeadOwner": False,
+                "notifyNewEntityOwner": False}
+            new_dict.update(extra_data)
             xmldata = self._prepare_xml_request("Potentials", [new_dict], element_name='option')
+
             post = {
-                'newFormat':    1,
-                'duplicateCheck':   2,
+                'newFormat': 1,
+                'duplicateCheck': 2,
                 'leadId': lead['LEADID']
             }
 
@@ -179,7 +181,7 @@ class CRM(Connection):
 
         return self._parse_json_response(data, module=module)
 
-    def delete_record(self, id, parameters={}):
+    def delete_record(self, id, module='Leads', parameters={}):
         """ Delete one record from Zoho CRM.
 
         @param id: Record id
@@ -192,7 +194,9 @@ class CRM(Connection):
         post_params["id"] = id
         post_params.update(parameters)
 
-        response = self.do_call("https://crm.zoho.com/crm/private/xml/Leads/deleteRecords", post_params)
+        url = 'https://crm.zoho.com/crm/private/xml/%s/deleteRecords' % module
+
+        response = self.do_call(url, post_params)
 
         self.check_successful_xml(response)
 
