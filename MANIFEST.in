@@ -1,6 +1,6 @@
 recursive-include mfabrik *
 recursive-include docs *
-recursive-include README.txt
+recursive-include README.md
 global-exclude *pyc
 global-exclude .project
 global-exclude .pydevproject
