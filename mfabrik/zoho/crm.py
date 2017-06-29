@@ -60,7 +60,7 @@ class CRM(Connection):
                 # <FL val="Lead Source">Web Download</FL>
                 # <FL val="First Name">contacto 1</FL>
                 fl = Element(element_name, val=key)
-                if type(value) == dict: # If it's an attached module, accept multiple groups
+                if isinstance(value, dict): # If it's an attached module, accept multiple groups
                     mod_attach_no = 1
                     for module_key, module_value in value.items(): # The first group defines the module name, yank that and iterate through the contents
                         for mod_item in module_value:
@@ -69,10 +69,11 @@ class CRM(Connection):
                                 attach_fl = SubElement(mod_fl, element_name, val=mod_item_key)
                                 attach_fl.text = mod_item_value
                             mod_attach_no += 1
-                elif type(value) != str:
-                    fl.text = str(value)
                 else:
-                    fl.text = value
+                    if isinstance(value, (unicode, str)):
+                        fl.text = value
+                    else:
+                        fl.text = str(value)
                 row.append(fl)
             no += 1
         return root

@@ -275,7 +275,10 @@ def stringify(params):
     """ Make sure all params are urllib compatible strings """
     new_dict = {}
     for key, value in params.items():
-        new_dict[key] = str(value)
+        if isinstance(value, unicode):
+            new_dict[key] = value.encode('utf-8')
+        else:
+            new_dict[key] = str(value)
 
     return new_dict
 
